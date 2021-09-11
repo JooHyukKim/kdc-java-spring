@@ -53,6 +53,7 @@ class ConditionalOperator extends GenericOperator {
             return divide(x, y);
         }
     }
+
 }
 
 class SwitchOperator extends GenericOperator {
@@ -84,13 +85,13 @@ class SwitchOperator extends GenericOperator {
 public class Q1 {
 
     public static void main(String[] args) {
-        SwitchOperator switchOperator = new SwitchOperator(1,2);
+        SwitchOperator switchOperator = new SwitchOperator(1, 2);
         System.out.println(switchOperator.perform(Operation.ADD));
         System.out.println(switchOperator.perform(Operation.SUBTRACT));
         System.out.println(switchOperator.perform(Operation.DIVIDE));
         System.out.println(switchOperator.perform(Operation.MULTIPLY));
 
-        ConditionalOperator conditionalOperator = new ConditionalOperator(1,2);
+        ConditionalOperator conditionalOperator = new ConditionalOperator(1, 2);
         System.out.println(conditionalOperator.perform(Operation.ADD));
         System.out.println(conditionalOperator.perform(Operation.SUBTRACT));
         System.out.println(conditionalOperator.perform(Operation.DIVIDE));
