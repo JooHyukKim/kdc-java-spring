@@ -27,6 +27,6 @@ public class BookSale extends BaseEntity {
 
     // TODO: 책이 본래 가진 price에 할인 정책을 적용하여 가격을 반환하도록 한다. BookSaleTest를 성공시킨다.
     public Long getPrice() {
-        return 0L;
+        return discountPolicy.getDiscountAmount(book.getPrice());
     }
 }

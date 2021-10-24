@@ -19,7 +19,7 @@ public class BookSaleService {
     // TODO: 책을 찾을 수 없으면 RunTimeException을 발생시키도록 구현하세요. 쿼리는 BookSaleRepository에 이미 선언되어 있습니다.
     @Transactional(readOnly = true)
     public BookSale getOrThrow(Book book) {
-        return null;
+        return bookSaleRepository.findByBook(book).orElseThrow(RuntimeException::new);
     }
 
     @Transactional
@@ -29,4 +29,5 @@ public class BookSaleService {
         BookSale bookSale = new BookSale(book, policy);
         bookSaleRepository.save(bookSale);
     }
+
 }

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class BookService {
@@ -20,5 +22,15 @@ public class BookService {
     // TODO: 동일한 책의 제목이 존재하면 RunTimeException을 발생시키고, 그렇지 않으면 책을 저장하도록 구현하세요. 제목으로 책을 조회해오는 쿼리는 이미 BookRepository에 등록되어있습니다.
     @Transactional
     public void registerBook(String title, String author, Long price) {
+        Optional<Book> existingBook = bookRepository.findByTitle(title);
+
+        if (existingBook.isPresent()) throw new RuntimeException("해당 제목의 책이 이미 존재합니다.");
+
+        Book newBook = new Book();
+        newBook.setTitle(title);
+        newBook.setAuthor(author);
+        newBook.setPrice(price);
+
+        bookRepository.save(newBook);
     }
 }

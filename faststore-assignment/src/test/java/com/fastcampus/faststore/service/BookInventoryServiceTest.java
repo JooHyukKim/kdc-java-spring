@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
@@ -50,30 +53,50 @@ public class BookInventoryServiceTest {
     @Test
     @Transactional
     public void storeBook() {
+        Book book = new Book("자바의 정석", "남궁성", 30000L);
+        BookInventory inventory = new BookInventory(book, 1L, 27000L);
+        DiscountPolicy discountPolicy = new DiscountPolicy(DiscountType.PERCENT, 10L);
+        BookSale bookSale = new BookSale(book, discountPolicy);
 
+        bookRepository.save(book);
+        bookInventoryRepository.save(inventory);
+
+        given(bookService.getOrThrow(book.getTitle())).willReturn(book);
+        given(bookSaleService.getOrThrow(book)).willReturn(bookSale);
+
+        bookInventoryService.storeBook("자바의 정석");
+        assertThat(bookInventoryRepository.count()).isEqualTo(1L);
+        BookInventory savedInventory = bookInventoryRepository.findAll().get(0);
+        assertThat(savedInventory.getCount()).isEqualTo(2L);
+        assertThat(savedInventory.getIncome()).isEqualTo(54000L);
+        assertThat(savedInventory.getBook().getTitle()).isEqualTo(book.getTitle());
+        assertThat(savedInventory.getBook().getAuthor()).isEqualTo(book.getAuthor());
+        assertThat(savedInventory.getBook().getPrice()).isEqualTo(book.getPrice());
     }
+
 
     @Test
     @Transactional
     public void sellBook() {
+
         Book book = new Book("자바의 정석", "남궁성", 30000L);
         bookRepository.save(book);
 
         bookInventoryRepository.save(new BookInventory(book, 1L, 27000L));
-
         DiscountPolicy discountPolicy = new DiscountPolicy(DiscountType.PERCENT, 10L);
         BookSale bookSale = new BookSale(book, discountPolicy);
+
         given(bookService.getOrThrow("자바의 정석")).willReturn(book);
         given(bookSaleService.getOrThrow(book)).willReturn(bookSale);
 
         bookInventoryService.sellBook("자바의 정석");
 
         assertThat(bookInventoryRepository.count()).isEqualTo(1L);
-        BookInventory result = bookInventoryRepository.findAll().get(0);
-        assertThat(result.getBook().getTitle()).isEqualTo(book.getTitle());
-        assertThat(result.getBook().getAuthor()).isEqualTo(book.getAuthor());
-        assertThat(result.getBook().getPrice()).isEqualTo(book.getPrice());
-        assertThat(result.getCount()).isEqualTo(0L);
-        assertThat(result.getIncome()).isEqualTo(0L);
+        BookInventory inventory = bookInventoryRepository.findAll().get(0);
+        assertThat(inventory.getBook().getTitle()).isEqualTo(book.getTitle());
+        assertThat(inventory.getBook().getAuthor()).isEqualTo(book.getAuthor());
+        assertThat(inventory.getBook().getPrice()).isEqualTo(book.getPrice());
+        assertThat(inventory.getCount()).isEqualTo(0L);
+        assertThat(inventory.getIncome()).isEqualTo(0L);
     }
 }

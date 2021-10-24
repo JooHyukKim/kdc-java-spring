@@ -3,6 +3,7 @@ package com.fastcampus.faststore.service;
 import com.fastcampus.faststore.entity.Book;
 import com.fastcampus.faststore.repository.BookRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +33,28 @@ public class BookServiceTest {
     // TODO: getOrThrow 테스트 코드를 작성하세요.
     @Test
     public void getOrThrow() {
+        Book book = new Book("자바의 정석", "남궁성", 33000L);
+        Assertions.assertThrows(AssertionError.class
+                , () -> assertThat(bookRepository.findByTitle("자바의 정석")).isNotEmpty());
+        assertThat(bookRepository.findByTitle("자바의 정석")).isEmpty();
+
+        // SETUP
+        bookRepository.save(book);
+        assertThat(bookRepository.findByTitle(book.getTitle())).isNotEmpty();
+
+        // MAIN
+        Book returnedBook = bookService.getOrThrow(book.getTitle());
+
+        // TEST
+        assertThat(returnedBook.getTitle()).isEqualTo(book.getTitle());
+        assertThat(returnedBook.getAuthor()).isEqualTo(book.getAuthor());
+        assertThat(returnedBook.getPrice()).isEqualTo(book.getPrice());
     }
 
     @Test
     public void registerBook() {
+        assertThat(bookRepository.findByTitle("자바의 정석")).isNotNull();
         bookService.registerBook("자바의 정석", "남궁성", 3000L);
-
         assertThat(bookRepository.findByTitle("자바의 정석")).isNotNull();
     }
 }

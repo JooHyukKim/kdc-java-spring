@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class BookSaleServiceTest {
@@ -66,6 +69,24 @@ public class BookSaleServiceTest {
     @Test
     @Transactional
     public void registerBookSale() {
+        Book book = new Book("자바의 정석", "남궁성", 30000L);
+        DiscountPolicy discountPolicy = new DiscountPolicy(DiscountType.PERCENT, 10L);
+        bookRepository.save(book);
+
+        // FAIL : BookSale 등록 전에는 검색에 실패한다.
+        assertThat(bookSaleRepository.findByBook(book)).isEmpty();
+
+        // MAIN
+        bookSaleService.registerBookSale(book.getTitle(), DiscountType.AMOUNT, 3000L);
+
+        // TEST :
+        assertThat(bookSaleRepository.findByBook(book)).isNotEmpty();
+        BookSale bookSale = bookSaleRepository.findByBook(book).get();
+        assertThat(bookSale.getPrice()).isEqualTo(bookSale.getPrice());
+        assertThat(bookSale.getBook().getTitle()).isEqualTo(book.getTitle());
+        assertThat(bookSale.getBook().getAuthor()).isEqualTo(book.getAuthor());
+        assertThat(bookSale.getBook().getPrice()).isEqualTo(book.getPrice());
+
     }
 
 }
